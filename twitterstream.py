@@ -22,7 +22,7 @@ class MyListener(tweepy.Stream):
         try:
             processed = json.loads(data)
             tweettext=processed['text']
-            self.conn.send(data)
+            self.conn.send(bytes(tweettext,'utf-8'))
             print("Fetched: ",tweettext)
         except BaseException as e:
             print("Error on_data: %s" % str(e))
@@ -58,4 +58,4 @@ print("Received request from: " + str(addr))
 twitter_stream = MyListener(consumer_key, consumer_secret, access_token, access_secret)
 twitter_stream.setCon(c_socket)
 
-twitter_stream.filter(track=['#RCB'])
+twitter_stream.filter(track=['#RCB','#CSK','#MI','#SRH'])
