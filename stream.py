@@ -14,18 +14,17 @@ access_secret="J5BMlIOM50M2fFvR38mYvssLlzCpPGGnCuoOXhJaDYL2u"
 
 import tweepy
 
-class MyListener(tweepy.Stream):
+class tweepyClientWrapper(tweepy.Stream):
 
     def setCon(self,conn):
         self.conn = conn
     def on_data(self, data):
         try:
-            processed = json.loads(data)
-            tweettext=processed['text']
-            self.conn.send(bytes(tweettext,'utf-8'))
-            print("Fetched: ",tweettext)
-        except BaseException as e:
-            print("Error on_data: %s" % str(e))
+            tweetDict = json.loads(data)
+            actualTweet=tweetDict['text']
+            self.conn.send(bytes(actualTweet,'utf-8'))
+        except Exception as e:
+            print(e)
         return True
 
     def on_error(self, status):
@@ -34,28 +33,21 @@ class MyListener(tweepy.Stream):
 
 
 
-# class SL(tweepy.Stream):
-#     def on_data(self,data,con):
-#
-#         tcp_connection.send(status.text.encode())
-
-
-
 s = socket.socket()
 host = "localhost"
 port = 9008
 s.bind((host, port))
 print('Socket is ready')
-# server (local machine) listens for connections
+
 s.listen(4)
 print('Socket listening')
-# return the socket and the address on the other side of the connection (client side)
+
 c_socket, addr = s.accept()
 
-print("Received request from: " + str(addr))
-# select here the keyword for the tweet data
+print("client is " + str(addr))
 
-twitter_stream = MyListener(consumer_key, consumer_secret, access_token, access_secret)
-twitter_stream.setCon(c_socket)
 
-twitter_stream.filter(track=['#RCB','#CSK','#MI','#SRH','#ElonMusk'])
+tweepyClient = tweepyClientWrapper(consumer_key, consumer_secret, access_token, access_secret)
+tweepyClient.setCon(c_socket)
+
+tweepyClient.filter(track=['#RCB','#CSK','#MI','#SRH', '#elonmusk'])

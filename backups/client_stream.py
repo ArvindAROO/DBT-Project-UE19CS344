@@ -13,10 +13,10 @@ from pyspark.streaming.kafka import KafkaUtils
 from kafka import KafkaProducer
 from collections import Counter
 
-sc = SparkContext(appName="spark2kafka")
+sc = SparkContext(appName="PySparkShell")
 spark = SparkSession(sc)
 
-
+#setup a kafka producer
 producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=lambda x: 
                          dumps(x).encode('utf-8'), key_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
@@ -31,30 +31,28 @@ def process(rdd):
     rowRdd = rdd.map(lambda x: Row(word=x))
     
     if not rowRdd.isEmpty():
-        wordsDF = spark.createDataFrame(rowRdd)
+        wordsDataFrame = spark.createDataFrame(rowRdd)
 
-        wordsDF.createOrReplaceTempView("words")
-        AggregatedWordCountsDF = spark.sql("select word, count(*) as total from words group by word order by 2 desc")       
-        # pandasdf=AggregatedWordCountsDF.toPandas()
-        AggregatedWordCountsDF.show()
-        queryResults = AggregatedWordCountsDF.select("word","total").rdd.flatMap(lambda x: x).collect()
-        print(queryResults)
-        #publish to kafka pipeline with # as topic
+        wordsDataFrame.createOrReplaceTempView("words")
+        wordCountsDataFrame = spark.sql("select word, count(*) as total from words group by word order by 2 desc")       
+        # pd_df=wordCountsDataFrame.toPandas()
+        wordCountsDataFrame.show()
+        l = wordCountsDataFrame.select("word","total").rdd.flatMap(lambda x: x).collect()
+        print(l)
+        #publish to kafka pipeline with word as topic
         i=0
-        while i <len(queryResults):
-            #get in pairs
-            #structure of queryResukts will be [word1, total1, word2, total2, word3, total3, ...]
-            hashtag = queryResults[i]
-            count = queryResults[i+1]
+        while i <len(l):
+            word = l[i]
+            count = l[i+1]
             i+=2
         # for word, count in l:
         #     producer.send(word[1:], count)
         #     # print(i)
-            if type(hashtag) == bytes:
-                hashtag = hashtag.decode('utf-8')
-            print("word: ", hashtag)
+            if type(word) == bytes:
+                word = word.decode('utf-8')
+            print("word: ", word)
             print("count: ", count)
-            producer.send(hashtag[1:], count) # remove the #
+            producer.send(word[1:], count)
             producer.flush()
 
 

@@ -1,20 +1,22 @@
+# Import some necessary modules
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 import json
-import time
-# HASHTAG_LIST = [
-#     "RCB",
-#     "rcb",
-#     "CB"
-# ]
+
+HASHTAG_LIST = [
+    "RCB",
+    "rcb",
+    "CB"
+]
 
 def main():
+    # Connect to MongoDB and pizza_data database
     try:
         client = MongoClient('localhost',27017)
         db = client.temp_data
-        print("Connection established at port 27017")
+        print("Connected successfully!")
     except:  
-        print("lol, connection failed")
+        print("Could not connect to MongoDB")
         return    
     consumer = KafkaConsumer(bootstrap_servers=['localhost:9092'])
     consumer.subscribe(["RCB","CSK","MI","SRH","ELONMUSK"])
@@ -26,23 +28,22 @@ def main():
 
     print("hello")
 
+        # Parse received data from Kafka
     for msg in consumer:
-        # print(msg)
+        print(msg)
+        #record = json.loads(msg.value)
         name = msg.topic
         counts = int(msg.value)      
         # Create dictionary and ingest data into MongoDB
-        timeStamp = int(time.time())
         try:
             toBeInserted = {
                 "name" : name,
-                "count": counts,
-                "time": timeStamp
-
+                "count": counts
             }
             id = db.hashtags.insert_one(toBeInserted)
-            print("Data: {} inserted with id:".format(toBeInserted, id))
+            print("Data inserted with record ids", id)
         except:
-            print("Mongo insertion failed")
+            print("Could not insert into MongoDB")
     #consumer.close()
 
 
@@ -56,5 +57,5 @@ def main():
 # }
 # id = db.hashtags.insert_one(toBeInserted)
 # print("Data inserted with record ids", id)
-if __name__ == "__main__":
-    main()
+
+main()
