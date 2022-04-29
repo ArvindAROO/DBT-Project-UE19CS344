@@ -1,3 +1,4 @@
+from tkinter.messagebox import NO
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 import json
@@ -56,5 +57,28 @@ def main():
 # }
 # id = db.hashtags.insert_one(toBeInserted)
 # print("Data inserted with record ids", id)
+
+def batchProcessing(initialTimeStamp, finalTimeStamp):
+    # aggregate data from MongoDB between initialTimeStamp and finalTimeStamp
+    # return a list of tuples (hashtag, count)
+    MongoClient = MongoClient('localhost',27017)
+    db = MongoClient.temp_data
+    query= None
+    if type(initialTimeStamp) == int and type(finalTimeStamp) == int:
+        query = {"time": {"$gte": initialTimeStamp, "$lte": finalTimeStamp}}
+    else:
+        query = {"time": {"$gte": initialTimeStamp, "$lte": finalTimeStamp}}
+    count = db.hashtags.find(query)
+    # find sum of counts for each hashtag
+    # return a list of tuples (hashtag, count)
+    resultDic = {}
+    for i in count:
+        if i["name"] in resultDic:
+            resultDic[i["name"]] += i["count"]
+        else:
+            resultDic[i["name"]] = i["count"]
+    return resultDic
+
 if __name__ == "__main__":
     main()
+    # print(batchProcessing(0, 100000000000000))
