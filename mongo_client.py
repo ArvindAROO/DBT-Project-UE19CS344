@@ -68,11 +68,9 @@ def batchProcessing(initialTimeStamp, finalTimeStamp):
         query = {"time": {"$gte": initialTimeStamp, "$lte": finalTimeStamp}}
     else:
         query = {"time": {"$gte": initialTimeStamp, "$lte": finalTimeStamp}}
-    count = db.hashtags.find(query)
-    # find sum of counts for each hashtag
-    # return a list of tuples (hashtag, count)
+    queryOutput = db.hashtags.find(query)
     resultDic = {}
-    for i in count:
+    for i in queryOutput:
         if i["name"] in resultDic:
             resultDic[i["name"]] += i["count"]
         else:

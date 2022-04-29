@@ -9,9 +9,7 @@ from pyspark.sql import Row
 from json import dumps
 
 
-from pyspark.streaming.kafka import KafkaUtils
 from kafka import KafkaProducer
-from collections import Counter
 
 sc = SparkContext(appName="spark2kafka")
 spark = SparkSession(sc)
@@ -22,7 +20,7 @@ producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=la
                          dumps(x).encode('utf-8'))
 
 
-def process(rdd):
+def countAndPush(rdd):
     spark=SparkSession \
             .builder \
             .config(conf=rdd.context.getConf()) \
@@ -63,6 +61,6 @@ socket_stream = ssc.socketTextStream('localhost', 9008)
 lines=socket_stream.window(10)
 df=lines.flatMap(lambda x:x.split(" ")).filter(lambda x:x.startswith("#")).filter(lambda x: x.upper() in ['#RCB','#CSK','#SRH','#MI','#ELONMUSK'])
 
-df.foreachRDD(process)
+df.foreachRDD(countAndPush)
 ssc.start()             
 ssc.awaitTermination()  
