@@ -52,7 +52,7 @@ def countAndPush(rdd):
                 hashtag = hashtag.decode('utf-8')
             print("word: ", hashtag)
             print("count: ", count)
-            producer.send(hashtag[1:], count) # remove the #
+            producer.send(hashtag[1:], count) # remove the # (ahem, hashtag)
             producer.flush()
 
 

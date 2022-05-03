@@ -1,0 +1,4 @@
+pyspark
+kafka
+pymongo
+tweepy

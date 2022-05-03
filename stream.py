@@ -1,18 +1,13 @@
-
+import tweepy
 import socket
 import json
 
 
 
-consumer_key="QZtm1FzgtGvybrkNDeKtiw8O2"
-consumer_secret ="q1zE545GzdrVtfks1Rs7JYiN671LOnsrygRDdWkKlAvRJBDPBG"
-access_token="1379074550210514944-FEkutfsE430HLEbPuKRskmOuCWbgXn"
-access_secret="J5BMlIOM50M2fFvR38mYvssLlzCpPGGnCuoOXhJaDYL2u"
-
-
-
-
-import tweepy
+consumer_key=""
+consumer_secret =""
+access_token=""
+access_secret=""
 
 class tweepyClientWrapper(tweepy.Stream):
 
